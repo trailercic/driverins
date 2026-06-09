@@ -421,6 +421,10 @@
       <label>Full Name *</label>
       <input type="text" id="f-name" placeholder="e.g. John Smith" autocomplete="name">
     </div>
+    <div class="field">
+      <label>Driver ID * (last 4 digits of your phone)</label>
+      <input type="number" id="f-driverid" placeholder="e.g. 1234" autocomplete="off" maxlength="4" pattern="\d{4}">
+    </div>
 
     <div class="section-label">Vehicle</div>
 
@@ -596,11 +600,16 @@ function removePhoto(type, idx) {
 // ─── SUBMIT FORM ──────────────────────────────────────────
 async function submitForm() {
   const name = document.getElementById('f-name').value.trim();
+  const driverid = document.getElementById('f-driverid').value.trim();
   const truck = document.getElementById('f-truck').value.trim();
   const trailer = document.getElementById('f-trailer').value.trim();
 
-  if (!name || !truck || !trailer) {
+  if (!name || !driverid || !truck || !trailer) {
     showStatus('form', 'error', '⚠️ Please fill in all required fields.');
+    return;
+  }
+  if (driverid.length !== 4 || isNaN(driverid)) {
+    showStatus('form', 'error', '⚠️ Driver ID must be exactly 4 digits.');
     return;
   }
   if (photos.truck.length === 0) {
@@ -614,9 +623,16 @@ async function submitForm() {
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-  showStatus('form', 'loading', '<span class="spinner"></span> Sending data...');
+  showStatus('form', 'loading', '<span class="spinner"></span> Verifying driver...');
 
   try {
+    const verify = await callApi('verify_driver', { name, driverid });
+    if (!verify.valid) {
+      showStatus('form', 'error', '❌ Driver ID does not match. Please check your name and last 4 digits of your phone.');
+      btn.disabled = false;
+      return;
+    }
+
     const ts = new Date().toLocaleString('en-US');
 
     showStatus('form', 'loading', '<span class="spinner"></span> Uploading photos...');
@@ -650,13 +666,14 @@ async function submitForm() {
     showStatus('form', 'loading', '<span class="spinner"></span> Saving to sheet...');
 
     await callApi('append_row', {
-      row: [ts, name, truck, trailer, truckUrls.join(' | '), trailerUrls.join(' | ')]
+      row: [ts, name, driverid, truck, trailer, truckUrls.join(' | '), trailerUrls.join(' | ')]
     });
 
     showStatus('form', 'success', '✅ Report submitted successfully!');
 
     // Reset form
     document.getElementById('f-name').value = '';
+    document.getElementById('f-driverid').value = '';
     document.getElementById('f-truck').value = '';
     document.getElementById('f-trailer').value = '';
     photos.truck = [];
@@ -707,9 +724,8 @@ async function loadRecords() {
     document.getElementById('stat-today').textContent = rows.filter(r => r[0] && r[0].includes(new Date().toLocaleDateString('en-US').split('/')[0])).length;
 
     document.getElementById('records-list').innerHTML = rows.map(r => {
-      const [ts, name, truck, trailer, truckImgs, trailerImgs] = r;
+      const [ts, name, driverid, truck, trailer, truckImgs, trailerImgs] = r;
       const allImgs = [...(truckImgs||'').split(' | '), ...(trailerImgs||'').split(' | ')].filter(Boolean);
-
       return `
         <div class="record-card">
           <div class="record-header">
@@ -717,6 +733,10 @@ async function loadRecords() {
             <div class="record-time">${ts||'—'}</div>
           </div>
           <div class="record-fields">
+            <div class="record-field">
+              <div class="lbl">Driver ID</div>
+              <div class="val">🪪 ${driverid||'—'}</div>
+            </div>
             <div class="record-field">
               <div class="lbl">Truck</div>
               <div class="val">🚛 ${truck||'—'}</div>
