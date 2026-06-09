@@ -616,31 +616,9 @@ async function submitForm() {
 
     showStatus('form', 'loading', '<span class="spinner"></span> Uploading photos...');
 
-    // Upload truck photos
-    const truckUrls = [];
-    for (let i = 0; i < photos.truck.length; i++) {
-      const dataUrl = photos.truck[i].dataUrl;
-      const base64 = dataUrl.split(',')[1];
-      const mimeType = dataUrl.split(';')[0].split(':')[1];
-      const result = await callApi('upload_image', {
-        base64, mimeType,
-        filename: `truck_${truck}_${Date.now()}_${i}.jpg`
-      });
-      truckUrls.push(result.url);
-    }
-
-    // Upload trailer photos
-    const trailerUrls = [];
-    for (let i = 0; i < photos.trailer.length; i++) {
-      const dataUrl = photos.trailer[i].dataUrl;
-      const base64 = dataUrl.split(',')[1];
-      const mimeType = dataUrl.split(';')[0].split(':')[1];
-      const result = await callApi('upload_image', {
-        base64, mimeType,
-        filename: `trailer_${trailer}_${Date.now()}_${i}.jpg`
-      });
-      trailerUrls.push(result.url);
-    }
+    // Convert photos to base64 data URLs (already are)
+    const truckUrls = photos.truck.map(p => p.dataUrl);
+    const trailerUrls = photos.trailer.map(p => p.dataUrl);
 
     showStatus('form', 'loading', '<span class="spinner"></span> Saving to sheet...');
 
