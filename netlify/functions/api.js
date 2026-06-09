@@ -41,7 +41,7 @@ async function getAccessToken() {
   const header = base64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const payload = base64url(JSON.stringify({
     iss: CLIENT_EMAIL,
-    scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive',
+    scope: 'https://www.googleapis.com/auth/spreadsheets',
     aud: 'https://oauth2.googleapis.com/token',
     exp: now + 3600,
     iat: now
@@ -80,51 +80,18 @@ exports.handler = async (event) => {
     const { action, data } = JSON.parse(event.body);
     const token = await getAccessToken();
 
-    // ── ENSURE HEADER ──
     async function ensureHeader() {
-      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:F1`, {
+      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:G1`, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       const d = await r.json();
       if (!d.values || d.values.length === 0) {
-        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:F1?valueInputOption=USER_ENTERED`, {
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:G1?valueInputOption=USER_ENTERED`, {
           method: 'PUT',
           headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ values: [['Date & Time', 'Full Name', 'Truck Number', 'Trailer Number', 'Truck Photos', 'Trailer Photos']] })
+          body: JSON.stringify({ values: [['Date & Time', 'Full Name', 'Truck Number', 'Trailer Number', 'Truck Photos', 'Trailer Photos', 'Photo Count']] })
         });
       }
-    }
-
-    if (action === 'upload_image') {
-      // Upload image to Drive
-      const { base64, mimeType, filename } = data;
-      const boundary = 'boundary123456789';
-      const meta = JSON.stringify({ name: filename, mimeType, parents: ['17xr_UIyHURAnc7yrpHB8xKJETypIhpbq'] });
-      const body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: ${mimeType}\r\nContent-Transfer-Encoding: base64\r\n\r\n${base64}\r\n--${boundary}--`;
-
-      const uploadRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': `multipart/related; boundary=${boundary}`
-        },
-        body
-      });
-      const uploadData = await uploadRes.json();
-      if (!uploadData.id) throw new Error('Upload failed: ' + JSON.stringify(uploadData));
-
-      // Make public
-      await fetch(`https://www.googleapis.com/drive/v3/files/${uploadData.id}/permissions`, {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: 'reader', type: 'anyone' })
-      });
-
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ url: `https://drive.google.com/uc?id=${uploadData.id}` })
-      };
     }
 
     if (action === 'append_row') {
@@ -143,7 +110,7 @@ exports.handler = async (event) => {
 
     if (action === 'get_rows') {
       const r = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:Z1000`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:G1000`,
         { headers: { 'Authorization': 'Bearer ' + token } }
       );
       const d = await r.json();
@@ -153,10 +120,6 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Unknown action' }) };
 
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: err.message })
-    };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
   }
 };
