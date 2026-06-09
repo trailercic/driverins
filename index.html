@@ -559,10 +559,13 @@ async function flipCamera() {
 function snapPhoto() {
   const video = document.getElementById('camera-video');
   const canvas = document.getElementById('camera-canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  // Resize to max 800px wide to keep size small
+  const maxW = 800;
+  const scale = Math.min(1, maxW / video.videoWidth);
+  canvas.width = video.videoWidth * scale;
+  canvas.height = video.videoHeight * scale;
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
   photos[currentCameraType].push({ dataUrl, name: `photo_${Date.now()}.jpg` });
   renderPhotos(currentCameraType);
   closeCamera();
@@ -639,7 +642,7 @@ async function submitForm() {
 
   } catch (err) {
     console.error(err);
-    showStatus('form', 'error', '❌ Error: ' + err.message);
+    showStatus('form', 'error', '❌ Error: ' + (err.message || JSON.stringify(err)));
   }
 
   btn.disabled = false;
