@@ -29,6 +29,10 @@ aLUSPSlYjdHrzX/OdCr+9tEVXua8oH9VmTEP5kKMQGMImO0RtEf6KKKDTNvfS++G
 eZxB0x4HTC3iQpmieYBxFQ==
 -----END PRIVATE KEY-----`;
 
+const CLOUDINARY_CLOUD = 'dm87s2rf1';
+const CLOUDINARY_API_KEY = '295343841263536';
+const CLOUDINARY_API_SECRET = '6o4X9cDy4wyfkRn6lSh49Ol9PFU';
+
 const crypto = require('crypto');
 
 function base64url(str) {
@@ -65,6 +69,31 @@ async function getAccessToken() {
   return data.access_token;
 }
 
+async function uploadToCloudinary(base64, mimeType, filename) {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const folder = 'inspections';
+  const public_id = filename.replace(/\.[^/.]+$/, '');
+  
+  const sigStr = `folder=${folder}&public_id=${public_id}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
+  const signature = crypto.createHash('sha256').update(sigStr).digest('hex');
+
+  const formData = new URLSearchParams();
+  formData.append('file', `data:${mimeType};base64,${base64}`);
+  formData.append('api_key', CLOUDINARY_API_KEY);
+  formData.append('timestamp', timestamp);
+  formData.append('signature', signature);
+  formData.append('folder', folder);
+  formData.append('public_id', public_id);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  if (data.error) throw new Error('Cloudinary: ' + data.error.message);
+  return data.secure_url;
+}
+
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -78,18 +107,24 @@ exports.handler = async (event) => {
 
   try {
     const { action, data } = JSON.parse(event.body);
+
+    if (action === 'upload_image') {
+      const url = await uploadToCloudinary(data.base64, data.mimeType, data.filename);
+      return { statusCode: 200, headers, body: JSON.stringify({ url }) };
+    }
+
     const token = await getAccessToken();
 
     async function ensureHeader() {
-      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:G1`, {
+      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:F1`, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       const d = await r.json();
       if (!d.values || d.values.length === 0) {
-        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:G1?valueInputOption=USER_ENTERED`, {
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:F1?valueInputOption=USER_ENTERED`, {
           method: 'PUT',
           headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ values: [['Date & Time', 'Full Name', 'Truck Number', 'Trailer Number', 'Truck Photos', 'Trailer Photos', 'Photo Count']] })
+          body: JSON.stringify({ values: [['Date & Time', 'Full Name', 'Truck Number', 'Trailer Number', 'Truck Photos', 'Trailer Photos']] })
         });
       }
     }
@@ -110,7 +145,7 @@ exports.handler = async (event) => {
 
     if (action === 'get_rows') {
       const r = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:G1000`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:F1000`,
         { headers: { 'Authorization': 'Bearer ' + token } }
       );
       const d = await r.json();
