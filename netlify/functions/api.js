@@ -115,16 +115,36 @@ exports.handler = async (event) => {
 
     const token = await getAccessToken();
 
+    if (action === 'verify_driver') {
+      const { name, driverid } = data;
+      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Drivers!A2:B1000`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const d = await r.json();
+      if (!d.values) return { statusCode: 200, headers, body: JSON.stringify({ valid: false }) };
+      
+      const nameWords = name.toLowerCase().split(/\s+/).filter(Boolean);
+      const match = d.values.find(row => {
+        if (!row[0] || !row[1]) return false;
+        const sheetName = row[0].toString().toLowerCase();
+        const sheetId = row[1].toString().trim();
+        const nameMatch = nameWords.some(word => sheetName.includes(word));
+        const idMatch = sheetId === driverid.trim();
+        return nameMatch && idMatch;
+      });
+      return { statusCode: 200, headers, body: JSON.stringify({ valid: !!match }) };
+    }
+
     async function ensureHeader() {
-      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:F1`, {
+      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:H1`, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       const d = await r.json();
       if (!d.values || d.values.length === 0) {
-        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:F1?valueInputOption=USER_ENTERED`, {
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:H1?valueInputOption=USER_ENTERED`, {
           method: 'PUT',
           headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ values: [['Date & Time', 'Full Name', 'Truck Number', 'Trailer Number', 'Truck Photos', 'Trailer Photos']] })
+          body: JSON.stringify({ values: [['Date & Time', 'Full Name', 'Driver ID', 'Truck Number', 'Trailer Number', 'Truck Photos', 'Trailer Photos']] })
         });
       }
     }
@@ -145,7 +165,7 @@ exports.handler = async (event) => {
 
     if (action === 'get_rows') {
       const r = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:F1000`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:H1000`,
         { headers: { 'Authorization': 'Bearer ' + token } }
       );
       const d = await r.json();
