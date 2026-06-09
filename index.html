@@ -523,7 +523,9 @@ async function callApi(action, data) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action, data })
   });
-  const json = await res.json();
+  const text = await res.text();
+  let json;
+  try { json = JSON.parse(text); } catch(e) { throw new Error('Server response: ' + text.substring(0, 200)); }
   if (json.error) throw new Error(json.error);
   return json;
 }
@@ -619,9 +621,31 @@ async function submitForm() {
 
     showStatus('form', 'loading', '<span class="spinner"></span> Uploading photos...');
 
-    // Convert photos to base64 data URLs (already are)
-    const truckUrls = photos.truck.map(p => p.dataUrl);
-    const trailerUrls = photos.trailer.map(p => p.dataUrl);
+    // Upload truck photos to Cloudinary
+    const truckUrls = [];
+    for (let i = 0; i < photos.truck.length; i++) {
+      const dataUrl = photos.truck[i].dataUrl;
+      const base64 = dataUrl.split(',')[1];
+      const mimeType = dataUrl.split(';')[0].split(':')[1];
+      const result = await callApi('upload_image', {
+        base64, mimeType,
+        filename: `truck_${truck}_${Date.now()}_${i}`
+      });
+      truckUrls.push(result.url);
+    }
+
+    // Upload trailer photos to Cloudinary
+    const trailerUrls = [];
+    for (let i = 0; i < photos.trailer.length; i++) {
+      const dataUrl = photos.trailer[i].dataUrl;
+      const base64 = dataUrl.split(',')[1];
+      const mimeType = dataUrl.split(';')[0].split(':')[1];
+      const result = await callApi('upload_image', {
+        base64, mimeType,
+        filename: `trailer_${trailer}_${Date.now()}_${i}`
+      });
+      trailerUrls.push(result.url);
+    }
 
     showStatus('form', 'loading', '<span class="spinner"></span> Saving to sheet...');
 
