@@ -99,7 +99,7 @@ exports.handler = async (event) => {
       // Upload image to Drive
       const { base64, mimeType, filename } = data;
       const boundary = 'boundary123456789';
-      const meta = JSON.stringify({ name: filename, mimeType });
+      const meta = JSON.stringify({ name: filename, mimeType, parents: ['17xr_UIyHURAnc7yrpHB8xKJETypIhpbq'] });
       const body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: ${mimeType}\r\nContent-Transfer-Encoding: base64\r\n\r\n${base64}\r\n--${boundary}--`;
 
       const uploadRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
