@@ -666,7 +666,7 @@ async function submitForm() {
     showStatus('form', 'loading', '<span class="spinner"></span> Saving to sheet...');
 
     await callApi('append_row', {
-      row: [ts, name, driverid, truck, trailer, truckUrls.join(' | '), trailerUrls.join(' | ')]
+      row: [ts, verify.officialName || name, driverid, truck, trailer, truckUrls.join(' | '), trailerUrls.join(' | ')]
     });
 
     showStatus('form', 'success', '✅ Report submitted successfully!');
