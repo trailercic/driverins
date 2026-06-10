@@ -17,16 +17,16 @@
     --radius: 10px;
     --font: 'Segoe UI', system-ui, sans-serif;
   }
-
+ 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
   body {
     background: var(--black);
     color: var(--white);
     font-family: var(--font);
     min-height: 100vh;
   }
-
+ 
   /* ── HEADER ── */
   .header {
     background: var(--gray);
@@ -39,18 +39,18 @@
   .header-icon { font-size: 28px; }
   .header h1 { font-size: 18px; font-weight: 700; letter-spacing: .5px; }
   .header p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
+ 
   /* ── PAGES ── */
   .page { display: none; }
   .page.active { display: block; }
-
+ 
   /* ── FORM PAGE ── */
   .form-container {
     padding: 24px 20px;
     max-width: 500px;
     margin: 0 auto;
   }
-
+ 
   .section-label {
     font-size: 11px;
     font-weight: 700;
@@ -69,7 +69,7 @@
     height: 1px;
     background: var(--light-gray);
   }
-
+ 
   .field { margin-bottom: 16px; }
   .field label {
     display: block;
@@ -90,7 +90,7 @@
   }
   .field input:focus { border-color: var(--yellow); }
   .field input::placeholder { color: #555; }
-
+ 
   /* ── PHOTO SECTION ── */
   .photo-group { margin-bottom: 24px; }
   .photo-group-title {
@@ -101,7 +101,7 @@
     align-items: center;
     gap: 8px;
   }
-
+ 
   .photo-add-btn {
     width: 100%;
     background: var(--gray);
@@ -121,7 +121,7 @@
     border-color: var(--yellow);
     color: var(--yellow);
   }
-
+ 
   .photo-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -151,9 +151,9 @@
     font-size: 14px;
     display: flex; align-items: center; justify-content: center;
   }
-
+ 
   input[type="file"] { display: none; }
-
+ 
   /* ── SUBMIT ── */
   .submit-btn {
     width: 100%;
@@ -171,7 +171,7 @@
   }
   .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
   .submit-btn:active:not(:disabled) { opacity: .85; }
-
+ 
   .status-msg {
     text-align: center;
     padding: 14px;
@@ -184,7 +184,7 @@
   .status-msg.success { background: rgba(76,175,80,.15); color: var(--success); border: 1px solid var(--success); display: block; }
   .status-msg.error { background: rgba(232,93,58,.15); color: var(--danger); border: 1px solid var(--danger); display: block; }
   .status-msg.loading { background: rgba(245,200,66,.1); color: var(--yellow); border: 1px solid var(--yellow); display: block; }
-
+ 
   /* ── ADMIN LOGIN ── */
   .login-container {
     max-width: 360px;
@@ -196,7 +196,7 @@
   }
   .login-container h2 { font-size: 20px; margin-bottom: 6px; }
   .login-container p { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; }
-
+ 
   /* ── ADMIN PANEL ── */
   .admin-container { padding: 20px; }
   .admin-header {
@@ -217,7 +217,7 @@
     cursor: pointer;
     font-size: 13px;
   }
-
+ 
   .stats-row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -232,9 +232,9 @@
   }
   .stat-card .num { font-size: 28px; font-weight: 700; color: var(--yellow); }
   .stat-card .lbl { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-
+ 
   .records-list { display: flex; flex-direction: column; gap: 14px; }
-
+ 
   .record-card {
     background: var(--gray);
     border-radius: var(--radius);
@@ -259,7 +259,7 @@
   }
   .record-field .lbl { font-size: 11px; color: var(--text-muted); }
   .record-field .val { font-size: 14px; font-weight: 500; margin-top: 2px; }
-
+ 
   .record-photos {
     padding: 0 16px 14px;
   }
@@ -278,7 +278,7 @@
     flex-shrink: 0;
     cursor: pointer;
   }
-
+ 
   /* ── CAMERA MODAL ── */
   .camera-modal {
     display: none;
@@ -346,8 +346,8 @@
   }
   .cam-snap-btn:active { opacity: .85; }
   .camera-controls { display: none; }
-
-
+ 
+ 
   /* ── LIGHTBOX ── */
   .lightbox {
     display: none;
@@ -367,7 +367,7 @@
     background: none; border: none;
     color: white; font-size: 30px; cursor: pointer;
   }
-
+ 
   /* ── LOADING SPINNER ── */
   .spinner {
     display: inline-block;
@@ -380,14 +380,14 @@
     margin-right: 8px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-
+ 
   .no-records {
     text-align: center;
     padding: 40px 20px;
     color: var(--text-muted);
     font-size: 15px;
   }
-
+ 
   .refresh-btn {
     background: var(--yellow);
     color: var(--black);
@@ -401,7 +401,7 @@
 </style>
 </head>
 <body>
-
+ 
 <!-- HEADER -->
 <div class="header">
   <div class="header-icon">🚛</div>
@@ -410,13 +410,13 @@
     <p id="header-sub">Submit truck & trailer condition report</p>
   </div>
 </div>
-
+ 
 <!-- PAGE: FORM -->
 <div id="page-form" class="page active">
   <div class="form-container">
-
+ 
     <div class="section-label">Driver</div>
-
+ 
     <div class="field">
       <label>Full Name *</label>
       <input type="text" id="f-name" placeholder="e.g. John Smith" autocomplete="name">
@@ -425,9 +425,9 @@
       <label>Driver ID * (last 4 digits of your phone)</label>
       <input type="number" id="f-driverid" placeholder="e.g. 1234" autocomplete="off" maxlength="4" pattern="\d{4}">
     </div>
-
+ 
     <div class="section-label">Vehicle</div>
-
+ 
     <div class="field">
       <label>Truck Number *</label>
       <input type="text" id="f-truck" placeholder="e.g. T-1042" autocomplete="off">
@@ -436,7 +436,7 @@
       <label>Trailer Number *</label>
       <input type="text" id="f-trailer" placeholder="e.g. TR-2085" autocomplete="off">
     </div>
-
+ 
     <div class="section-label">Truck Photos</div>
     <div class="photo-group">
       <div class="photo-grid" id="truck-grid"></div>
@@ -444,7 +444,7 @@
         <span>📷</span> Take truck photo
       </button>
     </div>
-
+ 
     <div class="section-label">Trailer Photos</div>
     <div class="photo-group">
       <div class="photo-grid" id="trailer-grid"></div>
@@ -452,13 +452,13 @@
         <span>📷</span> Take trailer photo
       </button>
     </div>
-
+ 
     <button class="submit-btn" id="submit-btn" onclick="submitForm()">Submit Report</button>
     <div class="status-msg" id="status-msg"></div>
     <div style="height:40px"></div>
   </div>
 </div>
-
+ 
 <!-- PAGE: ADMIN LOGIN -->
 <div id="page-login" class="page">
   <div class="login-container">
@@ -472,7 +472,7 @@
     <div class="status-msg" id="login-msg"></div>
   </div>
 </div>
-
+ 
 <!-- PAGE: ADMIN PANEL -->
 <div id="page-admin" class="page">
   <div class="admin-container">
@@ -498,7 +498,7 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- CAMERA MODAL -->
 <div class="camera-modal" id="camera-modal">
   <div class="camera-inner">
@@ -509,18 +509,18 @@
     <button class="cam-snap-btn" onclick="snapPhoto()">📷 Capture</button>
   </div>
 </div>
-
+ 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
   <img id="lightbox-img" src="" alt="">
 </div>
-
+ 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────
 const ADMIN_PASS = 'Ubij@m0!@';
 const API = '/.netlify/functions/api';
-
+ 
 async function callApi(action, data) {
   const res = await fetch(API, {
     method: 'POST',
@@ -533,15 +533,15 @@ async function callApi(action, data) {
   if (json.error) throw new Error(json.error);
   return json;
 }
-
+ 
 // ─── PHOTO STATE ──────────────────────────────────────────
 const photos = { truck: [], trailer: [] };
-
+ 
 // ─── CAMERA ───────────────────────────────────────────────
 let currentCameraType = null;
 let cameraStream = null;
 let facingMode = 'environment'; // rear camera by default
-
+ 
 async function openCamera(type) {
   currentCameraType = type;
   try {
@@ -556,12 +556,12 @@ async function openCamera(type) {
     alert('Camera access denied or not available. Please allow camera access in your browser settings.');
   }
 }
-
+ 
 async function flipCamera() {
   facingMode = facingMode === 'environment' ? 'user' : 'environment';
   await openCamera(currentCameraType);
 }
-
+ 
 function snapPhoto() {
   const video = document.getElementById('camera-video');
   const canvas = document.getElementById('camera-canvas');
@@ -576,12 +576,12 @@ function snapPhoto() {
   renderPhotos(currentCameraType);
   closeCamera();
 }
-
+ 
 function closeCamera() {
   if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
   document.getElementById('camera-modal').classList.remove('open');
 }
-
+ 
 function renderPhotos(type) {
   const grid = document.getElementById(type + '-grid');
   grid.innerHTML = photos[type].map((p, i) => `
@@ -591,19 +591,19 @@ function renderPhotos(type) {
     </div>
   `).join('');
 }
-
+ 
 function removePhoto(type, idx) {
   photos[type].splice(idx, 1);
   renderPhotos(type);
 }
-
+ 
 // ─── SUBMIT FORM ──────────────────────────────────────────
 async function submitForm() {
   const name = document.getElementById('f-name').value.trim();
   const driverid = document.getElementById('f-driverid').value.trim();
   const truck = document.getElementById('f-truck').value.trim();
   const trailer = document.getElementById('f-trailer').value.trim();
-
+ 
   if (!name || !driverid || !truck || !trailer) {
     showStatus('form', 'error', '⚠️ Please fill in all required fields.');
     return;
@@ -620,11 +620,11 @@ async function submitForm() {
     showStatus('form', 'error', '⚠️ Please add at least one trailer photo.');
     return;
   }
-
+ 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
   showStatus('form', 'loading', '<span class="spinner"></span> Verifying driver...');
-
+ 
   try {
     const verify = await callApi('verify_driver', { name, driverid });
     if (!verify.valid) {
@@ -632,11 +632,11 @@ async function submitForm() {
       btn.disabled = false;
       return;
     }
-
+ 
     const ts = new Date().toLocaleString('en-US');
-
+ 
     showStatus('form', 'loading', '<span class="spinner"></span> Uploading photos...');
-
+ 
     // Upload truck photos to Cloudinary
     const truckUrls = [];
     for (let i = 0; i < photos.truck.length; i++) {
@@ -649,7 +649,7 @@ async function submitForm() {
       });
       truckUrls.push(result.url);
     }
-
+ 
     // Upload trailer photos to Cloudinary
     const trailerUrls = [];
     for (let i = 0; i < photos.trailer.length; i++) {
@@ -662,15 +662,15 @@ async function submitForm() {
       });
       trailerUrls.push(result.url);
     }
-
+ 
     showStatus('form', 'loading', '<span class="spinner"></span> Saving to sheet...');
-
+ 
     await callApi('append_row', {
       row: [ts, name, driverid, truck, trailer, truckUrls.join(' | '), trailerUrls.join(' | ')]
     });
-
+ 
     showStatus('form', 'success', '✅ Report submitted successfully!');
-
+ 
     // Reset form
     document.getElementById('f-name').value = '';
     document.getElementById('f-driverid').value = '';
@@ -680,15 +680,15 @@ async function submitForm() {
     photos.trailer = [];
     renderPhotos('truck');
     renderPhotos('trailer');
-
+ 
   } catch (err) {
     console.error(err);
     showStatus('form', 'error', '❌ Error: ' + (err.message || JSON.stringify(err)));
   }
-
+ 
   btn.disabled = false;
 }
-
+ 
 // ─── ADMIN ────────────────────────────────────────────────
 function adminLogin() {
   const pass = document.getElementById('admin-pass').value;
@@ -699,33 +699,43 @@ function adminLogin() {
     showStatus('login', 'error', '❌ Wrong password');
   }
 }
-
+ 
 function adminLogout() {
   document.getElementById('admin-pass').value = '';
   showPage('form');
 }
-
+ 
 async function loadRecords() {
   document.getElementById('records-list').innerHTML = '<div class="no-records">Loading...</div>';
   try {
     const data = await callApi('get_rows', {});
-
+ 
     if (!data.values || data.values.length <= 1) {
       document.getElementById('records-list').innerHTML = '<div class="no-records">📭 No reports yet.</div>';
       document.getElementById('stat-total').textContent = '0';
       document.getElementById('stat-today').textContent = '0';
       return;
     }
-
+ 
     const rows = data.values.slice(1).reverse();
     const todayStr = new Date().toLocaleDateString('en-US');
-
+ 
     document.getElementById('stat-total').textContent = rows.length;
     document.getElementById('stat-today').textContent = rows.filter(r => r[0] && r[0].includes(new Date().toLocaleDateString('en-US').split('/')[0])).length;
-
+ 
     document.getElementById('records-list').innerHTML = rows.map(r => {
       const [ts, name, driverid, truck, trailer, truckImgs, trailerImgs] = r;
-      const allImgs = [...(truckImgs||'').split(' | '), ...(trailerImgs||'').split(' | ')].filter(Boolean);
+      const truckUrls = (truckImgs||'').split(' | ').filter(Boolean);
+      const trailerUrls = (trailerImgs||'').split(' | ').filter(Boolean);
+      const totalPhotos = truckUrls.length + trailerUrls.length;
+ 
+      const renderPhotoSection = (label, urls) => urls.length ? `
+        <div class="photos-label">📷 ${label} (${urls.length})</div>
+        <div class="photos-scroll" style="margin-bottom:8px">
+          ${urls.map(url => `<img src="${url}" onclick="openLightbox('${url}')" loading="lazy">`).join('')}
+        </div>
+      ` : '';
+ 
       return `
         <div class="record-card">
           <div class="record-header">
@@ -746,22 +756,20 @@ async function loadRecords() {
               <div class="val">🚜 ${trailer||'—'}</div>
             </div>
           </div>
-          ${allImgs.length ? `
+          ${totalPhotos > 0 ? `
           <div class="record-photos">
-            <div class="photos-label">📷 ${allImgs.length} photos</div>
-            <div class="photos-scroll">
-              ${allImgs.map(url => `<img src="${url}" onclick="openLightbox('${url}')" loading="lazy">`).join('')}
-            </div>
+            ${renderPhotoSection('Truck', truckUrls)}
+            ${renderPhotoSection('Trailer', trailerUrls)}
           </div>` : ''}
         </div>
       `;
     }).join('');
-
+ 
   } catch (err) {
     document.getElementById('records-list').innerHTML = `<div class="no-records">❌ Error loading data: ${err.message}</div>`;
   }
 }
-
+ 
 // ─── LIGHTBOX ─────────────────────────────────────────────
 function openLightbox(url) {
   document.getElementById('lightbox-img').src = url;
@@ -770,27 +778,27 @@ function openLightbox(url) {
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
 }
-
+ 
 // ─── NAVIGATION ───────────────────────────────────────────
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
 }
-
+ 
 function showStatus(ctx, type, msg) {
   const id = ctx === 'form' ? 'status-msg' : 'login-msg';
   const el = document.getElementById(id);
   el.className = 'status-msg ' + type;
   el.innerHTML = msg;
 }
-
+ 
 // ─── URL ROUTING ──────────────────────────────────────────
 window.addEventListener('load', () => {
   const hash = window.location.hash;
   if (hash === '#admin') showPage('login');
   else showPage('form');
 });
-
+ 
 // Admin access: add #admin to URL
 </script>
 </body>
