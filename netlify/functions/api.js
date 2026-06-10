@@ -133,7 +133,7 @@ exports.handler = async (event) => {
         const idMatch = sheetId === driverid.trim();
         return nameMatch && idMatch;
       });
-      return { statusCode: 200, headers, body: JSON.stringify({ valid: !!match }) };
+      return { statusCode: 200, headers, body: JSON.stringify({ valid: !!match, officialName: match ? match[0].toString() : null }) };
     }
 
     async function ensureHeader() {
