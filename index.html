@@ -724,7 +724,8 @@ async function loadRecords() {
     document.getElementById('stat-today').textContent = rows.filter(r => r[0] && r[0].includes(new Date().toLocaleDateString('en-US').split('/')[0])).length;
  
     document.getElementById('records-list').innerHTML = rows.map(r => {
-      const [ts, name, driverid, truck, trailer, truckImgs, trailerImgs] = r;
+      const [ts, firstName, lastName, truck, trailer, truckImgs, trailerImgs] = r;
+      const fullName = [firstName, lastName].filter(Boolean).join(' ');
       const truckUrls = (truckImgs||'').split(' | ').filter(Boolean);
       const trailerUrls = (trailerImgs||'').split(' | ').filter(Boolean);
       const totalPhotos = truckUrls.length + trailerUrls.length;
@@ -739,14 +740,10 @@ async function loadRecords() {
       return `
         <div class="record-card">
           <div class="record-header">
-            <div class="record-name">👤 ${name||'—'}</div>
+            <div class="record-name">👤 ${fullName||'—'}</div>
             <div class="record-time">${ts||'—'}</div>
           </div>
           <div class="record-fields">
-            <div class="record-field">
-              <div class="lbl">Driver ID</div>
-              <div class="val">🪪 ${driverid||'—'}</div>
-            </div>
             <div class="record-field">
               <div class="lbl">Truck</div>
               <div class="val">🚛 ${truck||'—'}</div>
