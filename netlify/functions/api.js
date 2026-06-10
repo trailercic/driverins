@@ -71,7 +71,7 @@ async function getAccessToken() {
 
 async function uploadToCloudinary(base64, mimeType, filename) {
   const timestamp = Math.floor(Date.now() / 1000);
-  const folder = 'inspections ';
+  const folder = 'inspections';
   const public_id = filename.replace(/\.[^/.]+$/, '');
   
   const sigStr = `folder=${folder}&public_id=${public_id}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
