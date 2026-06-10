@@ -117,14 +117,13 @@ exports.handler = async (event) => {
 
     if (action === 'verify_driver') {
       const { name, driverid } = data;
-      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Drivers!A2:B1000`, {
+      const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet2!A2:B1000`, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       const d = await r.json();
       if (!d.values) return { statusCode: 200, headers, body: JSON.stringify({ valid: false }) };
       
       const nameWords = name.toLowerCase().split(/\s+/).filter(Boolean);
-      const debugRows = [];
       const match = d.values.find(row => {
         if (!row[0] || !row[1]) return false;
         const sheetName = row[0].toString().toLowerCase();
@@ -132,10 +131,9 @@ exports.handler = async (event) => {
         const sheetWords = sheetName.split(/\s+/);
         const nameMatch = nameWords.some(word => sheetWords.includes(word));
         const idMatch = sheetId === driverid.trim();
-        if (nameMatch) debugRows.push({ sheetName, sheetId, nameMatch, idMatch });
         return nameMatch && idMatch;
       });
-      return { statusCode: 200, headers, body: JSON.stringify({ valid: !!match, debug: { nameWords, driverid, matches: debugRows } }) };
+      return { statusCode: 200, headers, body: JSON.stringify({ valid: !!match }) };
     }
 
     async function ensureHeader() {
