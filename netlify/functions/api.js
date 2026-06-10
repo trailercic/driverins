@@ -124,15 +124,18 @@ exports.handler = async (event) => {
       if (!d.values) return { statusCode: 200, headers, body: JSON.stringify({ valid: false }) };
       
       const nameWords = name.toLowerCase().split(/\s+/).filter(Boolean);
+      const debugRows = [];
       const match = d.values.find(row => {
         if (!row[0] || !row[1]) return false;
         const sheetName = row[0].toString().toLowerCase();
         const sheetId = row[1].toString().trim();
-        const sheetWords = sheetName.split(/\s+/); const nameMatch = nameWords.some(word => sheetWords.includes(word));
+        const sheetWords = sheetName.split(/\s+/);
+        const nameMatch = nameWords.some(word => sheetWords.includes(word));
         const idMatch = sheetId === driverid.trim();
+        if (nameMatch) debugRows.push({ sheetName, sheetId, nameMatch, idMatch });
         return nameMatch && idMatch;
       });
-      return { statusCode: 200, headers, body: JSON.stringify({ valid: !!match }) };
+      return { statusCode: 200, headers, body: JSON.stringify({ valid: !!match, debug: { nameWords, driverid, matches: debugRows } }) };
     }
 
     async function ensureHeader() {
