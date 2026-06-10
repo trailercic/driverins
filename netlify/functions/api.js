@@ -128,7 +128,7 @@ exports.handler = async (event) => {
         if (!row[0] || !row[1]) return false;
         const sheetName = row[0].toString().toLowerCase();
         const sheetId = row[1].toString().trim();
-        const nameMatch = nameWords.some(word => sheetName.includes(word));
+        const sheetWords = sheetName.split(/\s+/); const nameMatch = nameWords.some(word => sheetWords.includes(word));
         const idMatch = sheetId === driverid.trim();
         return nameMatch && idMatch;
       });
