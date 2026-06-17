@@ -762,4 +762,61 @@ window.addEventListener('load', () => {
 // Admin access: add #admin to URL
 </script>
 </body>
+</html>async function loadRecords() {
+  document.getElementById('records-list').innerHTML = '<div class="no-records">Loading...</div>';
+  try {
+    const data = await callApi('get_rows', {});
+
+    if (!data.values || data.values.length <= 1) {
+      document.getElementById('records-list').innerHTML = '<div class="no-records">📭 No reports yet.</div>';
+      document.getElementById('stat-total').textContent = '0';
+      document.getElementById('stat-today').textContent = '0';
+      return;
+    }
+
+    allRows = data.values.slice(1).reverse();
+    currentPage = 1;
+
+    document.getElementById('stat-total').textContent = allRows.length;
+    document.getElementById('stat-today').textContent = allRows.filter(r => r[0] && r[0].includes(new Date().toLocaleDateString('en-US').split('/')[0])).length;
+
+    filterAndRender();
+
+  } catch (err) {
+    document.getElementById('records-list').innerHTML = `<div class="no-records">❌ Error loading data: ${err.message}</div>`;
+  }
+}
+
+// ─── LIGHTBOX ─────────────────────────────────────────────
+function openLightbox(url) {
+  document.getElementById('lightbox-img').src = url;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+}
+
+function showStatus(ctx, type, msg) {
+  const id = ctx === 'form' ? 'status-msg' : 'login-msg';
+  const el = document.getElementById(id);
+  el.className = 'status-msg ' + type;
+  el.innerHTML = msg;
+}
+
+// ─── URL ROUTING ──────────────────────────────────────────
+window.addEventListener('load', () => {
+  const hash = window.location.hash;
+  if (hash === '#admin') showPage('login');
+  else showPage('form');
+});
+
+// Admin access: add #admin to URL
+</script>
+</body>
 </html>
