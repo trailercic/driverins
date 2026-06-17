@@ -205,9 +205,12 @@
   </div>
 </div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+<div class="lightbox" id="lightbox">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightbox-img" src="" alt="">
+  <button id="lightbox-prev" onclick="lightboxNav(-1)" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);border:none;color:white;font-size:32px;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+  <img id="lightbox-img" src="" alt="" style="max-width:90%;max-height:85vh;border-radius:8px;">
+  <button id="lightbox-next" onclick="lightboxNav(1)" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);border:none;color:white;font-size:32px;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
+  <div id="lightbox-counter" style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:white;font-size:14px;background:rgba(0,0,0,.5);padding:4px 12px;border-radius:20px;"></div>
 </div>
 
 <script>
@@ -413,12 +416,9 @@ function renderRows(rows) {
 
     const photoSection = (label, urls, id) => urls.length ? `
       <div class="photos-label">📷 ${label} (${urls.length})</div>
-      <div class="photo-nav">
-        <button class="photo-nav-btn" id="prev-${id}" onclick="navPhoto('${id}',-1)" ${urls.length<=1?'disabled':''}>‹</button>
-        <span class="photo-nav-counter" id="counter-${id}">1 / ${urls.length}</span>
-        <button class="photo-nav-btn" id="next-${id}" onclick="navPhoto('${id}',1)" ${urls.length<=1?'disabled':''}>›</button>
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px">
+        ${urls.map((url, i) => `<img src="${url}" onclick="openLightboxNav(${JSON.stringify(urls)}, ${i})" loading="lazy" style="height:80px;width:80px;object-fit:cover;border-radius:6px;flex-shrink:0;cursor:pointer;">`).join('')}
       </div>
-      <img class="photo-nav-img" id="img-${id}" src="${urls[0]}" onclick="openLightbox('${urls[0]}')" loading="lazy" data-urls='${JSON.stringify(urls)}' data-index="0">
     ` : '';
 
     return `
@@ -462,26 +462,41 @@ async function loadRecords() {
   }
 }
 
-function navPhoto(id, dir) {
-  const img = document.getElementById('img-' + id);
-  const urls = JSON.parse(img.dataset.urls);
-  let idx = parseInt(img.dataset.index) + dir;
-  idx = Math.max(0, Math.min(urls.length - 1, idx));
-  img.src = urls[idx];
-  img.dataset.index = idx;
-  img.onclick = () => openLightbox(urls[idx]);
-  document.getElementById('counter-' + id).textContent = (idx+1) + ' / ' + urls.length;
-  document.getElementById('prev-' + id).disabled = idx === 0;
-  document.getElementById('next-' + id).disabled = idx === urls.length - 1;
+
+
+let lightboxUrls = [];
+let lightboxIdx = 0;
+
+function openLightboxNav(urls, idx) {
+  lightboxUrls = urls;
+  lightboxIdx = idx;
+  updateLightbox();
+  document.getElementById('lightbox').classList.add('open');
 }
 
 function openLightbox(url) {
-  document.getElementById('lightbox-img').src = url;
-  document.getElementById('lightbox').classList.add('open');
+  openLightboxNav([url], 0);
 }
+
+function lightboxNav(dir) {
+  lightboxIdx = Math.max(0, Math.min(lightboxUrls.length - 1, lightboxIdx + dir));
+  updateLightbox();
+}
+
+function updateLightbox() {
+  document.getElementById('lightbox-img').src = lightboxUrls[lightboxIdx];
+  document.getElementById('lightbox-counter').textContent = lightboxUrls.length > 1 ? (lightboxIdx+1) + ' / ' + lightboxUrls.length : '';
+  document.getElementById('lightbox-prev').style.display = lightboxIdx === 0 ? 'none' : 'flex';
+  document.getElementById('lightbox-next').style.display = lightboxIdx === lightboxUrls.length - 1 ? 'none' : 'flex';
+}
+
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
 }
+
+document.getElementById('lightbox').addEventListener('click', function(e) {
+  if (e.target === this) closeLightbox();
+});
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
