@@ -381,40 +381,6 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .photo-nav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  .photo-nav-btn {
-    background: var(--gray);
-    border: 1px solid var(--light-gray);
-    color: var(--white);
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: background .2s;
-  }
-  .photo-nav-btn:hover { background: var(--light-gray); }
-  .photo-nav-btn:disabled { opacity: .3; cursor: not-allowed; }
-  .photo-nav-counter {
-    font-size: 12px;
-    color: var(--text-muted);
-    min-width: 50px;
-    text-align: center;
-  }
-  .photo-nav-img {
-    width: 100%;
-    max-height: 300px;
-    object-fit: contain;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #000;
-  }
   .no-records {
     text-align: center;
     padding: 40px 20px;
@@ -422,20 +388,6 @@
     font-size: 15px;
   }
 
-  .page-btn {
-    background: #2a2a2a;
-    border: 1px solid #3d3d3d;
-    color: #f5f4f0;
-    padding: 7px 13px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: background .2s;
-  }
-  .page-btn:hover { background: #3d3d3d; }
-  .page-btn.active { background: #f5c842; color: #0f0f0f; font-weight: 700; border-color: #f5c842; }
-  .page-btn:disabled { opacity: .35; cursor: not-allowed; }
-  .page-info { font-size: 13px; color: #888; padding: 7px 4px; }
   .refresh-btn {
     background: var(--yellow);
     color: var(--black);
@@ -541,23 +493,9 @@
         <div class="lbl">Today</div>
       </div>
     </div>
-    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-      <input type="text" id="search-input" placeholder="🔍 Search by name, truck, trailer..." 
-        style="flex:1;min-width:200px;background:#2a2a2a;border:1.5px solid #3d3d3d;color:#f5f4f0;font-size:14px;padding:10px 14px;border-radius:10px;outline:none"
-        oninput="filterAndRender()">
-      <select id="per-page" onchange="filterAndRender()"
-        style="background:#2a2a2a;border:1.5px solid #3d3d3d;color:#f5f4f0;font-size:14px;padding:10px 14px;border-radius:10px;outline:none;cursor:pointer">
-        <option value="10">10 per page</option>
-        <option value="25">25 per page</option>
-        <option value="50">50 per page</option>
-        <option value="100">100 per page</option>
-      </select>
-    </div>
-    <div id="pagination-top" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap"></div>
     <div class="records-list" id="records-list">
       <div class="no-records">Loading...</div>
     </div>
-    <div id="pagination-bottom" style="display:flex;gap:8px;align-items:center;margin-top:16px;flex-wrap:wrap"></div>
   </div>
 </div>
 
@@ -767,109 +705,6 @@ function adminLogout() {
   showPage('form');
 }
 
-let allRows = [];
-let currentPage = 1;
-
-function filterAndRender() {
-  const search = document.getElementById('search-input').value.toLowerCase();
-  const perPage = parseInt(document.getElementById('per-page').value);
-  
-  const filtered = search ? allRows.filter(r => {
-    const [ts, firstName, lastName, truck, trailer] = r;
-    const fullName = [firstName, lastName].filter(Boolean).join(' ').toLowerCase();
-    return fullName.includes(search) || 
-           (truck||'').toLowerCase().includes(search) || 
-           (trailer||'').toLowerCase().includes(search);
-  }) : allRows;
-
-  const totalPages = Math.ceil(filtered.length / perPage);
-  if (currentPage > totalPages) currentPage = 1;
-  
-  const start = (currentPage - 1) * perPage;
-  const pageRows = filtered.slice(start, start + perPage);
-
-  renderRows(pageRows);
-  renderPagination(currentPage, totalPages, filtered.length, perPage);
-}
-
-function renderPagination(page, totalPages, total, perPage) {
-  const start = (page - 1) * perPage + 1;
-  const end = Math.min(page * perPage, total);
-  const info = `<span class="page-info">Showing ${start}–${end} of ${total}</span>`;
-  
-  let btns = `<button class="page-btn" onclick="goPage(${page-1})" ${page <= 1 ? 'disabled' : ''}>‹ Prev</button>`;
-  
-  // Show max 5 page buttons
-  let startP = Math.max(1, page - 2);
-  let endP = Math.min(totalPages, startP + 4);
-  if (endP - startP < 4) startP = Math.max(1, endP - 4);
-  
-  for (let i = startP; i <= endP; i++) {
-    btns += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
-  }
-  
-  btns += `<button class="page-btn" onclick="goPage(${page+1})" ${page >= totalPages ? 'disabled' : ''}>Next ›</button>`;
-  
-  document.getElementById('pagination-top').innerHTML = info + btns;
-  document.getElementById('pagination-bottom').innerHTML = totalPages > 1 ? info + btns : '';
-}
-
-function goPage(p) {
-  currentPage = p;
-  filterAndRender();
-  window.scrollTo(0, document.getElementById('records-list').offsetTop - 20);
-}
-
-function renderRows(rows) {
-  if (!rows.length) {
-    document.getElementById('records-list').innerHTML = '<div class="no-records">📭 No results found.</div>';
-    return;
-  }
-
-  document.getElementById('records-list').innerHTML = rows.map(r => {
-      const [ts, firstName, lastName, truck, trailer, truckImgs, trailerImgs] = r;
-      const fullName = [firstName, lastName].filter(Boolean).join(' ');
-      const truckUrls = (truckImgs||'').split(' | ').filter(Boolean);
-      const trailerUrls = (trailerImgs||'').split(' | ').filter(Boolean);
-      const totalPhotos = truckUrls.length + trailerUrls.length;
-      const sectionId = (ts||'').replace(/[^a-z0-9]/gi,'');
-
-      const renderPhotoSection = (label, urls, sid) => urls.length ? `
-        <div class="photos-label">📷 ${label} (${urls.length})</div>
-        <div class="photo-nav">
-          <button class="photo-nav-btn" id="prev-${sid}" onclick="navPhoto('${sid}',-1)" ${urls.length <= 1 ? 'disabled' : ''}>‹</button>
-          <span class="photo-nav-counter" id="counter-${sid}">1 / ${urls.length}</span>
-          <button class="photo-nav-btn" id="next-${sid}" onclick="navPhoto('${sid}',1)" ${urls.length <= 1 ? 'disabled' : ''}>›</button>
-        </div>
-        <img class="photo-nav-img" id="img-${sid}" src="${urls[0]}" onclick="openLightbox('${urls[0]}')" loading="lazy" data-urls='${JSON.stringify(urls)}' data-index="0">
-      ` : '';
-
-      return `
-        <div class="record-card">
-          <div class="record-header">
-            <div class="record-name">👤 ${fullName||'—'}</div>
-            <div class="record-time">${ts||'—'}</div>
-          </div>
-          <div class="record-fields">
-            <div class="record-field">
-              <div class="lbl">Truck</div>
-              <div class="val">🚛 ${truck||'—'}</div>
-            </div>
-            <div class="record-field">
-              <div class="lbl">Trailer</div>
-              <div class="val">🚜 ${trailer||'—'}</div>
-            </div>
-          </div>
-          ${totalPhotos > 0 ? `
-          <div class="record-photos">
-            ${renderPhotoSection('Truck', truckUrls, 'truck-'+sectionId)}
-            ${renderPhotoSection('Trailer', trailerUrls, 'trailer-'+sectionId)}
-          </div>` : ''}
-        </div>
-      `;
-    }).join('');
-}
-
 async function loadRecords() {
   document.getElementById('records-list').innerHTML = '<div class="no-records">Loading...</div>';
   try {
@@ -882,67 +717,17 @@ async function loadRecords() {
       return;
     }
 
-    const rows = data.values.slice(1).reverse();
-    const todayStr = new Date().toLocaleDateString('en-US');
+    allRows = data.values.slice(1).reverse();
+    currentPage = 1;
 
-    document.getElementById('stat-total').textContent = rows.length;
-    document.getElementById('stat-today').textContent = rows.filter(r => r[0] && r[0].includes(new Date().toLocaleDateString('en-US').split('/')[0])).length;
+    document.getElementById('stat-total').textContent = allRows.length;
+    document.getElementById('stat-today').textContent = allRows.filter(r => r[0] && r[0].includes(new Date().toLocaleDateString('en-US').split('/')[0])).length;
 
-    document.getElementById('records-list').innerHTML = rows.map(r => {
-      const [ts, name, driverid, truck, trailer, truckImgs, trailerImgs] = r;
-      const allImgs = [...(truckImgs||'').split(' | '), ...(trailerImgs||'').split(' | ')].filter(Boolean);
-      return `
-        <div class="record-card">
-          <div class="record-header">
-            <div class="record-name">👤 ${name||'—'}</div>
-            <div class="record-time">${ts||'—'}</div>
-          </div>
-          <div class="record-fields">
-            <div class="record-field">
-              <div class="lbl">Driver ID</div>
-              <div class="val">🪪 ${driverid||'—'}</div>
-            </div>
-            <div class="record-field">
-              <div class="lbl">Truck</div>
-              <div class="val">🚛 ${truck||'—'}</div>
-            </div>
-            <div class="record-field">
-              <div class="lbl">Trailer</div>
-              <div class="val">🚜 ${trailer||'—'}</div>
-            </div>
-          </div>
-          ${allImgs.length ? `
-          <div class="record-photos">
-            <div class="photos-label">📷 ${allImgs.length} photos</div>
-            <div class="photos-scroll">
-              ${allImgs.map(url => `<img src="${url}" onclick="openLightbox('${url}')" loading="lazy">`).join('')}
-            </div>
-          </div>` : ''}
-        </div>
-      `;
-    }).join('');
+    filterAndRender();
 
   } catch (err) {
     document.getElementById('records-list').innerHTML = `<div class="no-records">❌ Error loading data: ${err.message}</div>`;
   }
-}
-
-// ─── PHOTO NAV ───────────────────────────────────────────
-function navPhoto(sectionId, dir) {
-  const img = document.getElementById('img-' + sectionId);
-  const counter = document.getElementById('counter-' + sectionId);
-  const prevBtn = document.getElementById('prev-' + sectionId);
-  const nextBtn = document.getElementById('next-' + sectionId);
-  const urls = JSON.parse(img.dataset.urls);
-  let idx = parseInt(img.dataset.index) + dir;
-  if (idx < 0) idx = 0;
-  if (idx >= urls.length) idx = urls.length - 1;
-  img.src = urls[idx];
-  img.dataset.index = idx;
-  img.onclick = () => openLightbox(urls[idx]);
-  counter.textContent = (idx + 1) + ' / ' + urls.length;
-  prevBtn.disabled = idx === 0;
-  nextBtn.disabled = idx === urls.length - 1;
 }
 
 // ─── LIGHTBOX ─────────────────────────────────────────────
