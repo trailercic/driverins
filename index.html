@@ -414,12 +414,17 @@ function renderRows(rows) {
     const trailerUrls = (trailerImgs||'').split(' | ').filter(Boolean);
     const sid = (ts||'').replace(/[^a-z0-9]/gi, '');
 
-    const photoSection = (label, urls, id) => urls.length ? `
-      <div class="photos-label">📷 ${label} (${urls.length})</div>
-      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px">
-        ${urls.map((url, i) => `<img src="${url}" onclick="openLightboxNav(${JSON.stringify(urls)}, ${i})" loading="lazy" style="height:80px;width:80px;object-fit:cover;border-radius:6px;flex-shrink:0;cursor:pointer;">`).join('')}
-      </div>
-    ` : '';
+    const photoSection = (label, urls, id) => {
+      if (!urls.length) return '';
+      const key = 'lb_' + id;
+      window[key] = urls;
+      return `
+        <div class="photos-label">📷 ${label} (${urls.length})</div>
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px">
+          ${urls.map((url, i) => `<img src="${url}" onclick="openLightboxNav(window['${key}'], ${i})" loading="lazy" style="height:80px;width:80px;object-fit:cover;border-radius:6px;flex-shrink:0;cursor:pointer;">`).join('')}
+        </div>
+      `;
+    };
 
     return `
       <div class="record-card">
