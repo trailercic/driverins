@@ -139,6 +139,12 @@
       <div class="photo-grid" id="trailer-grid"></div>
       <button class="photo-add-btn" onclick="openCamera('trailer')"><span>📷</span> Take trailer photo</button>
     </div>
+    <div class="section-label">Notes</div>
+    <div class="field">
+      <label>Additional Notes (optional)</label>
+      <textarea id="f-notes" placeholder="Any issues or comments..." style="width:100%;background:var(--gray);border:1.5px solid var(--light-gray);color:var(--white);font-size:16px;padding:13px 14px;border-radius:var(--radius);outline:none;min-height:100px;resize:vertical;font-family:var(--font);" onfocus="this.style.borderColor='var(--yellow)'" onblur="this.style.borderColor='var(--light-gray)'"></textarea>
+    </div>
+
     <button class="submit-btn" id="submit-btn" onclick="submitForm()">Submit Report</button>
     <div class="status-msg" id="status-msg"></div>
     <div style="height:40px"></div>
@@ -329,7 +335,8 @@ async function submitForm() {
     }
 
     showStatus('form', 'loading', '<span class="spinner"></span> Saving to sheet...');
-    await callApi('append_row', { row: [ts, verify.officialName || name, driverid, truck, trailer, truckUrls.join(' | '), trailerUrls.join(' | ')] });
+    const notes = document.getElementById('f-notes').value.trim();
+    await callApi('append_row', { row: [ts, verify.officialName || name, driverid, truck, trailer, truckUrls.join(' | '), trailerUrls.join(' | '), notes] });
 
     showStatus('form', 'success', '✅ Report submitted successfully!');
     document.getElementById('f-name').value = '';
@@ -337,6 +344,7 @@ async function submitForm() {
     document.getElementById('f-truck').value = '';
     document.getElementById('f-trailer').value = '';
     photos.truck = []; photos.trailer = [];
+    document.getElementById('f-notes').value = '';
     renderPhotos('truck'); renderPhotos('trailer');
 
   } catch (err) {
@@ -409,7 +417,7 @@ function renderRows(rows) {
   if (!rows.length) { document.getElementById('records-list').innerHTML = '<div class="no-records">📭 No results found.</div>'; return; }
 
   document.getElementById('records-list').innerHTML = rows.map(r => {
-    const [ts, name, driverId, truck, trailer, truckImgs, trailerImgs] = r;
+    const [ts, name, driverId, truck, trailer, truckImgs, trailerImgs, notes] = r;
     const truckUrls = (truckImgs||'').split(' | ').filter(Boolean);
     const trailerUrls = (trailerImgs||'').split(' | ').filter(Boolean);
     const sid = (ts||'').replace(/[^a-z0-9]/gi, '');
@@ -441,6 +449,10 @@ function renderRows(rows) {
         <div class="record-photos">
           ${photoSection('Truck', truckUrls, 'truck-'+sid)}
           ${photoSection('Trailer', trailerUrls, 'trailer-'+sid)}
+          ${notes ? `<div style="margin-top:8px;padding:10px 12px;background:rgba(245,200,66,.08);border-left:3px solid var(--yellow);border-radius:4px;font-size:13px;color:var(--white);">📝 ${notes}</div>` : ''}
+        </div>` : notes ? `
+        <div class="record-photos">
+          <div style="padding:10px 12px;background:rgba(245,200,66,.08);border-left:3px solid var(--yellow);border-radius:4px;font-size:13px;color:var(--white);">📝 ${notes}</div>
         </div>` : ''}
       </div>
     `;
