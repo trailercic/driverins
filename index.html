@@ -473,7 +473,10 @@ async function loadRecords() {
     allRows = data.values.slice(1).reverse();
     currentPage = 1;
     document.getElementById('stat-total').textContent = allRows.length;
-    document.getElementById('stat-today').textContent = allRows.filter(r => r[0] && r[0].includes(new Date().toLocaleDateString('en-US').split('/')[0])).length;
+
+    const todayStr = new Date().toLocaleDateString('en-US'); // npr. "7/28/2026"
+    document.getElementById('stat-today').textContent = allRows.filter(r => r[0] && r[0].startsWith(todayStr)).length;
+
     filterAndRender();
   } catch (err) {
     document.getElementById('records-list').innerHTML = `<div class="no-records">❌ Error loading data: ${err.message}</div>`;
