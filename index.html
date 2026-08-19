@@ -85,6 +85,74 @@
   .lightbox-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: white; font-size: 30px; cursor: pointer; }
   .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(0,0,0,.3); border-top-color: var(--black); border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; margin-right: 8px; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .comment-section {
+    padding: 0 16px 14px;
+    border-top: 1px solid var(--light-gray);
+    padding-top: 12px;
+  }
+  .comment-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .comment-box {
+    width: 100%;
+    background: var(--black);
+    border: 1.5px solid var(--light-gray);
+    color: var(--white);
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    outline: none;
+    resize: vertical;
+    min-height: 70px;
+    font-family: var(--font);
+    transition: border-color .2s;
+  }
+  .comment-box:focus { border-color: var(--yellow); }
+  .comment-save-btn {
+    background: var(--yellow);
+    color: var(--black);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .comment-saved { font-size: 12px; color: var(--success); margin-left: 8px; display: none; }
+
+  .comment-section {
+    padding: 12px 16px 14px;
+    border-top: 1px solid var(--light-gray);
+  }
+  .comment-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .comment-box {
+    width: 100%;
+    background: var(--black);
+    border: 1.5px solid var(--light-gray);
+    color: var(--white);
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    outline: none;
+    resize: vertical;
+    min-height: 70px;
+    font-family: var(--font);
+    box-sizing: border-box;
+    transition: border-color .2s;
+  }
+  .comment-box:focus { border-color: var(--yellow); }
+  .comment-save-btn {
+    background: var(--yellow);
+    color: var(--black);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .comment-saved { font-size: 12px; color: #4caf50; margin-left: 8px; display: none; }
+
   .no-records { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 15px; }
   .refresh-btn { background: var(--yellow); color: var(--black); border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; }
   .photo-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -450,11 +518,15 @@ function renderRows(rows) {
         <div class="record-photos">
           ${photoSection('Truck', truckUrls, 'truck-'+sid)}
           ${photoSection('Trailer', trailerUrls, 'trailer-'+sid)}
-          ${notes ? `<div style="margin-top:8px;padding:10px 12px;background:rgba(245,200,66,.08);border-left:3px solid var(--yellow);border-radius:4px;font-size:13px;color:var(--white);">📝 ${notes}</div>` : ''}
-        </div>` : notes ? `
-        <div class="record-photos">
-          <div style="padding:10px 12px;background:rgba(245,200,66,.08);border-left:3px solid var(--yellow);border-radius:4px;font-size:13px;color:var(--white);">📝 ${notes}</div>
         </div>` : ''}
+        <div class="comment-section">
+          <div class="comment-label">💬 Admin Comment</div>
+          <textarea class="comment-box" id="comment-${sid}" placeholder="Add a comment...">${notes||''}</textarea>
+          <div>
+            <button class="comment-save-btn" onclick="saveComment(${rows.indexOf(r) + 2}, 'comment-${sid}', 'saved-${sid}')">Save</button>
+            <span class="comment-saved" id="saved-${sid}">✅ Saved!</span>
+          </div>
+        </div>
       </div>
     `;
   }).join('');
@@ -487,6 +559,18 @@ async function loadRecords() {
 
 let lightboxUrls = [];
 let lightboxIdx = 0;
+
+async function saveComment(rowIndex, textareaId, savedId) {
+  const comment = document.getElementById(textareaId).value;
+  const savedEl = document.getElementById(savedId);
+  try {
+    await callApi('update_comment', { rowIndex, comment });
+    savedEl.style.display = 'inline';
+    setTimeout(() => { savedEl.style.display = 'none'; }, 2000);
+  } catch(err) {
+    alert('Error saving comment: ' + err.message);
+  }
+}
 
 function openLightboxNav(urls, idx) {
   lightboxUrls = urls;
