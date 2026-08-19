@@ -441,8 +441,8 @@ function filterAndRender() {
   const search = document.getElementById('search-input').value.toLowerCase();
   const perPage = parseInt(document.getElementById('per-page').value);
 
-  const filtered = search ? allRows.filter(r => {
-    const [ts, name, driverId, truck, trailer] = r;
+  const filtered = search ? allRows.filter(row => {
+    const [ts, name, driverId, truck, trailer] = row.data;
     return (name||'').toLowerCase().includes(search) ||
            (driverId||'').includes(search) ||
            (truck||'').toLowerCase().includes(search) ||
@@ -485,7 +485,9 @@ function goPage(p) {
 function renderRows(rows) {
   if (!rows.length) { document.getElementById('records-list').innerHTML = '<div class="no-records">📭 No results found.</div>'; return; }
 
-  document.getElementById('records-list').innerHTML = rows.map(r => {
+  document.getElementById('records-list').innerHTML = rows.map(row => {
+    const r = row.data;
+    const sheetRow = row.sheetRow;
     const [ts, name, driverId, truck, trailer, truckImgs, trailerImgs, notes] = r;
     const truckUrls = (truckImgs||'').split(' | ').filter(Boolean);
     const trailerUrls = (trailerImgs||'').split(' | ').filter(Boolean);
@@ -523,7 +525,7 @@ function renderRows(rows) {
           <div class="comment-label">💬 Admin Comment</div>
           <textarea class="comment-box" id="comment-${sid}" placeholder="Add a comment...">${notes||''}</textarea>
           <div>
-            <button class="comment-save-btn" onclick="saveComment(${rows.indexOf(r) + 2}, 'comment-${sid}', 'saved-${sid}')">Save</button>
+            <button class="comment-save-btn" onclick="saveComment(${sheetRow}, 'comment-${sid}', 'saved-${sid}')">Save</button>
             <span class="comment-saved" id="saved-${sid}">✅ Saved!</span>
           </div>
         </div>
@@ -542,12 +544,12 @@ async function loadRecords() {
       document.getElementById('stat-today').textContent = '0';
       return;
     }
-    allRows = data.values.slice(1).reverse();
+    allRows = data.values.slice(1).map((r, i) => ({ data: r, sheetRow: i + 2 })).reverse();
     currentPage = 1;
     document.getElementById('stat-total').textContent = allRows.length;
 
     const todayStr = new Date().toLocaleDateString('en-US'); // npr. "7/28/2026"
-    document.getElementById('stat-today').textContent = allRows.filter(r => r[0] && r[0].startsWith(todayStr)).length;
+    document.getElementById('stat-today').textContent = allRows.filter(row => row.data[0] && row.data[0].startsWith(todayStr)).length;
 
     filterAndRender();
   } catch (err) {
