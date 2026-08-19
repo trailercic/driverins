@@ -138,8 +138,7 @@ exports.handler = async (event) => {
 
     if (action === 'update_comment') {
       const { rowIndex, comment } = data;
-      // rowIndex is 1-based, +1 for header row
-      const range = `Sheet1!H${rowIndex + 1}`;
+      const range = `Sheet1!H${rowIndex}`;
       const r = await fetch(
         `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED`,
         {
