@@ -136,6 +136,22 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ valid: !!match, officialName: match ? match[0].toString() : null }) };
     }
 
+    if (action === 'update_comment') {
+      const { rowIndex, comment } = data;
+      // rowIndex is 1-based, +1 for header row
+      const range = `Sheet1!H${rowIndex + 1}`;
+      const r = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED`,
+        {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ values: [[comment]] })
+        }
+      );
+      const d = await r.json();
+      return { statusCode: 200, headers, body: JSON.stringify(d) };
+    }
+
     async function ensureHeader() {
       const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:H1`, {
         headers: { 'Authorization': 'Bearer ' + token }
@@ -145,7 +161,7 @@ exports.handler = async (event) => {
         await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A1:H1?valueInputOption=USER_ENTERED`, {
           method: 'PUT',
           headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ values: [['Date & Time', 'Full Name', 'Driver ID', 'Truck Number', 'Trailer Number', 'Truck Photos', 'Trailer Photos']] })
+          body: JSON.stringify({ values: [['Date & Time', 'Full Name', 'Driver ID', 'Truck Number', 'Trailer Number', 'Truck Photos', 'Trailer Photos', 'Comments']] })
         });
       }
     }
